@@ -4,7 +4,7 @@ A fork from [opdavies/toggle-checkbox.nvim](https://github.com/opdavies/toggle-c
 A Super-simple Neovim plugin for checking and unchecking Markdown checkboxes, written in Lua.
 
 ## Preview
-![preview][./preview.gif]
+![preview](./preview.gif)
 
 ## Quick Start
 ### Install
