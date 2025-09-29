@@ -65,43 +65,38 @@ end
 
 M.toggleN = function(nlines)
 	nlines = nlines or 1
-  local bufnr = vim.api.nvim_get_current_buf()
-  local cursor = vim.api.nvim_win_get_cursor(0)
-  local start_line = cursor[1] - 1
-  local end_line = start_line + nlines
+	local bufnr = vim.api.nvim_get_current_buf()
+  	local cursor = vim.api.nvim_win_get_cursor(0)
+  	local start_line = cursor[1] - 1
+  	local end_line = start_line + nlines
 
-  -- Get up to 10 lines from the cursor downwards
-  local lines = vim.api.nvim_buf_get_lines(bufnr, start_line, end_line, false)
+  	local lines = vim.api.nvim_buf_get_lines(bufnr, start_line, end_line, false)
 
-  local new_lines = {}
-  for _, line in ipairs(lines) do
-    local new_line = ""
+  	local new_lines = {}
+  	for _, line in ipairs(lines) do
+  	  local new_line = ""
 
-    if not line_with_checkbox(line) then
-      new_line = checkbox.make_checkbox(line)
-    elseif line_contains_unchecked(line) then
-      new_line = checkbox.check(line)
-    elseif line_contains_checked(line) then
-      new_line = checkbox.uncheck(line)
-    else
-      new_line = line -- fallback: unchanged
-    end
+  	  if not line_with_checkbox(line) then
+  	    new_line = checkbox.make_checkbox(line)
+  	  elseif line_contains_unchecked(line) then
+  	    new_line = checkbox.check(line)
+  	  elseif line_contains_checked(line) then
+  	    new_line = checkbox.uncheck(line)
+  	  else
+  	    new_line = line 
+  	  end
 
-    table.insert(new_lines, new_line)
-  end
+  	  table.insert(new_lines, new_line)
+  	end
 
-  -- Replace the lines in the buffer
-  vim.api.nvim_buf_set_lines(bufnr, start_line, end_line, false, new_lines)
-
-  -- Restore cursor
-  vim.api.nvim_win_set_cursor(0, cursor)
+  	vim.api.nvim_buf_set_lines(bufnr, start_line, end_line, false, new_lines)
+  	vim.api.nvim_win_set_cursor(0, cursor)
 end
 
 vim.api.nvim_create_user_command("ToggleCheckbox", M.toggle, {})
 vim.api.nvim_create_user_command("ToggleNCheckboxes", function(opts)
-  local n = tonumber(opts.args) or 1  -- default to 1 if no number provided
+  local n = tonumber(opts.args) or 1  
   M.toggleN(n)
-end, { nargs = "?" })  -- "?" = optional argument
-
+end, { nargs = "?" })  
 return M
 
