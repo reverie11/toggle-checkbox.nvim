@@ -23,6 +23,8 @@ in your nvim config file `init.vim`
 There are no default keymaps but these can be added using `vim.keymap.set()`:
 
 ```vim
-:lua vim.keymap.set("n", "<leader>cc", ":ToggleCheckbox<CR>")
+:lua vim.keymap.set("n", "<leader>tt", ":TickCheckbox<CR>")
+:lua vim.keymap.set("n", "<leader>tn", ":TickNCheckboxes ")
+:lua vim.keymap.set("n", "<leader>cc", ":ToggleNCheck<CR>")
 :lua vim.keymap.set("n", "<leader>cn", ":ToggleNCheckboxes ")
 ```

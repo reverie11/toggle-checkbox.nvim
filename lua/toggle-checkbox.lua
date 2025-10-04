@@ -37,6 +37,11 @@ local checkbox = {
 			return line:gsub("(%s*- )(.*)", "%1[ ] %2", 1):gsub("(%s*%d%. )(.*)", "%1[ ] %2", 1)
 		end
 	end,
+
+	remove_checkbox = function(line)
+		return line:gsub("^(%s*)([%-%d]+%.?) %[[ xX]%]%s*", "%1")
+	end,
+
 }
 
 local M = {}
@@ -93,10 +98,62 @@ M.toggleN = function(nlines)
   	vim.api.nvim_win_set_cursor(0, cursor)
 end
 
-vim.api.nvim_create_user_command("ToggleCheckbox", M.toggle, {})
-vim.api.nvim_create_user_command("ToggleNCheckboxes", function(opts)
+
+M.toggleA = function()
+	local bufnr = vim.api.nvim_buf_get_number(0)
+	local cursor = vim.api.nvim_win_get_cursor(0)
+	local start_line = cursor[1] - 1
+	local current_line = vim.api.nvim_buf_get_lines(bufnr, start_line, start_line + 1, false)[1] or ""
+
+	local new_line = ""
+
+	if not line_with_checkbox(current_line) then
+		new_line = checkbox.make_checkbox(current_line)
+	else
+		new_line = checkbox.remove_checkbox(current_line)
+	end
+
+	vim.api.nvim_buf_set_lines(bufnr, start_line, start_line + 1, false, { new_line })
+	vim.api.nvim_win_set_cursor(0, cursor)
+end
+
+M.toggleAN = function(nlines)
+	nlines = nlines or 1
+	local bufnr = vim.api.nvim_get_current_buf()
+  	local cursor = vim.api.nvim_win_get_cursor(0)
+  	local start_line = cursor[1] - 1
+  	local end_line = start_line + nlines
+
+  	local lines = vim.api.nvim_buf_get_lines(bufnr, start_line, end_line, false)
+
+  	local new_lines = {}
+  	for _, line in ipairs(lines) do
+  		local new_line = ""
+
+		if not line_with_checkbox(line) then
+			new_line = checkbox.make_checkbox(line)
+		else
+			new_line = checkbox.remove_checkbox(line)
+		end
+
+  	  table.insert(new_lines, new_line)
+  	end
+
+  	vim.api.nvim_buf_set_lines(bufnr, start_line, end_line, false, new_lines)
+  	vim.api.nvim_win_set_cursor(0, cursor)
+end
+
+vim.api.nvim_create_user_command("TickCheckbox", M.toggle, {})
+vim.api.nvim_create_user_command("TickNCheckboxes", function(opts)
   local n = tonumber(opts.args) or 1  
   M.toggleN(n)
 end, { nargs = "?" })  
-return M
+vim.api.nvim_create_user_command("ToggleCheckbox", M.toggleA, {})
+vim.api.nvim_create_user_command("ToggleNCheckboxes", function(opts)
+  local n = tonumber(opts.args) or 1  
+  M.toggleAN(n)
+end, { nargs = "?" })  
 
+return M
+-- :luafile %
+-- _G.M = M
